@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_search) {
             return true;
         }
 
@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
             UnchainedAPI unchainedAPI = new UnchainedAPI(YELP_KEY, YELP_SECRET, YELP_TOKEN, YELP_TOKEN_SECRET,
                     FOURSQUARE_ID, FOURSQUARE_SECRET, GOOGLE_PLACES_KEY);
             try {
-                nonChains = unchainedAPI.getUnchainedRestaurants("", params[0]);
+                nonChains = unchainedAPI.getUnchainedRestaurants("sushi", params[0]);
             } catch (IOException e) {
                 e.printStackTrace();
             }
