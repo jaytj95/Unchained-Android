@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="unchained_red">#bf1111</color>
+    <color name="unchained_blue">#184774</color>
 </resources>

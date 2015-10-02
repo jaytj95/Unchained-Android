@@ -5,18 +5,26 @@ import android.os.AsyncTask;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
 import com.jasonjohn.unchainedapi.UnchainedAPI;
 import com.jasonjohn.unchainedapi.UnchainedRestaurant;
+import com.jasonjohn.unchainedapi.Util;
+import com.nineoldandroids.animation.Animator;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,15 +44,61 @@ public class MainActivity extends AppCompatActivity {
     private UnchainedAdapter listAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ArrayList<UnchainedRestaurant> nonChains;
+    private Toolbar toolbar;
+    private RelativeLayout configDropdown, configLocation;
+    EditText configLocationTextbox;
+    ImageButton configLocationSubmit;
+    InputMethodManager inputMethodManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        this.setSupportActionBar(toolbar);
+
         listView = (ListView) findViewById(R.id.listview);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeLayout);
 
-        new UnchainedAsync().execute("34.0619825,-83.9833599");
+        //config layout init
+        configDropdown = (RelativeLayout) findViewById(R.id.config_drop);
+        configLocation = (RelativeLayout) configDropdown.findViewById(R.id.config_drop_location);
+
+        configLocationSubmit = (ImageButton) configLocation.findViewById(R.id.config_drop_location_submit);
+        configLocationSubmit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!configLocationTextbox.getText().toString().matches("")) {
+                    YoYo.with(Techniques.SlideOutUp).duration(200).withListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animation) {}
+                        @Override
+                        public void onAnimationCancel(Animator animation) {}
+                        @Override
+                        public void onAnimationRepeat(Animator animation) {}
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            configDropdown.setVisibility(View.GONE);
+                        }
+                    }).playOn(configDropdown);
+                    inputMethodManager.hideSoftInputFromWindow(configLocationTextbox.getWindowToken(), 0);
+                } else {
+                    YoYo.with(Techniques.Shake).duration(700).playOn(configLocationTextbox);
+                }
+            }
+        });
+
+        configLocationTextbox = (EditText) findViewById(R.id.config_drop_location_text);
+
+        configDropdown.setVisibility(View.GONE);
+
+        inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        toolbar.bringToFront();
+        new UnchainedAsync().execute("restaurant", "34.0619825,-83.9833599");
+
+
+
     }
 
     @Override
@@ -63,6 +117,29 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_search) {
+
+            return true;
+        } else if(id == R.id.action_location) {
+            if(configDropdown.getVisibility() == View.GONE) {
+                configDropdown.setVisibility(View.VISIBLE);
+                YoYo.with(Techniques.SlideInDown).duration(200).playOn(configDropdown);
+                configLocationTextbox.requestFocus();
+                inputMethodManager.showSoftInput(configLocationTextbox, InputMethodManager.SHOW_FORCED);
+            } else {
+                YoYo.with(Techniques.SlideOutUp).duration(200).withListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {}
+                    @Override
+                    public void onAnimationCancel(Animator animation) {}
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {}
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        configDropdown.setVisibility(View.GONE);
+                    }
+                }).playOn(configDropdown);
+                inputMethodManager.hideSoftInputFromWindow(configLocationTextbox.getWindowToken(), 0);
+            }
             return true;
         }
 
@@ -73,14 +150,17 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(String... params) {
+            String location = params[1];
+            if(location.matches("-?[0-9.]*,-?[0-9.]*")) {
+                location = Util.getLatLngFromMapsQuery(location);
+            }
             UnchainedAPI unchainedAPI = new UnchainedAPI(YELP_KEY, YELP_SECRET, YELP_TOKEN, YELP_TOKEN_SECRET,
                     FOURSQUARE_ID, FOURSQUARE_SECRET, GOOGLE_PLACES_KEY);
             try {
-                nonChains = unchainedAPI.getUnchainedRestaurants("sushi", params[0]);
+                nonChains = unchainedAPI.getUnchainedRestaurants(params[0], location);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            Log.d("TAG", "Done size: " + nonChains.size());
             return null;
         }
 

@@ -2,10 +2,20 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" tools:context=".MainActivity">
 
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:minHeight="?attr/actionBarSize"
+        android:background="@color/unchained_red"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </android.support.v7.widget.Toolbar>
+
+
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipeLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar">
 
         <ListView
             android:id="@+id/listview"
@@ -15,4 +25,47 @@
         </ListView>
 
     </android.support.v4.widget.SwipeRefreshLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/config_drop"
+        android:minHeight="?attr/actionBarSize"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/swipeLayout"
+        android:layout_alignParentStart="true">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:background="@color/unchained_blue"
+            android:id="@+id/config_drop_location"
+            android:layout_height="?android:attr/actionBarSize">
+
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="16dp"
+                android:id="@+id/config_drop_location_text"
+                android:textColor="#fff"
+                android:hint="Enter your location (eg. Mall of Georgia)"
+                android:background="@android:color/transparent"
+                android:backgroundTint="#fff"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@+id/config_drop_location_submit"
+                android:layout_alignParentTop="true" />
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_communication_location_on"
+                android:background="@null"
+                android:id="@+id/config_drop_location_submit"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:paddingRight="4dp"/>
+        </RelativeLayout>
+
+    </RelativeLayout>
+
 </RelativeLayout>
