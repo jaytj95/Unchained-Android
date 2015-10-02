@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -39,16 +40,18 @@ public class MainActivity extends AppCompatActivity {
     public static final String FOURSQUARE_ID = "NVH2HBDEWL00GLGRYWZMDSFK2FUZR00ICNDW0OOGXL13NUFY";
     public static final String FOURSQUARE_SECRET = "TV04OXE1WM32JEHQLJTETFOE35KDHCEPNRHY35YCV5OOAH04";
 
-
     private ListView listView;
     private UnchainedAdapter listAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ArrayList<UnchainedRestaurant> nonChains;
     private Toolbar toolbar;
-    private RelativeLayout configDropdown, configLocation;
-    EditText configLocationTextbox;
-    ImageButton configLocationSubmit;
-    InputMethodManager inputMethodManager;
+    private RelativeLayout configDropdown;
+    private EditText configLocationTextbox;
+    private ImageButton configLocationSubmit;
+    private InputMethodManager inputMethodManager;
+
+    private String unchainedLocation, unchainedRestaurantQuery;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,26 +65,16 @@ public class MainActivity extends AppCompatActivity {
 
         //config layout init
         configDropdown = (RelativeLayout) findViewById(R.id.config_drop);
-        configLocation = (RelativeLayout) configDropdown.findViewById(R.id.config_drop_location);
 
-        configLocationSubmit = (ImageButton) configLocation.findViewById(R.id.config_drop_location_submit);
+        configLocationSubmit = (ImageButton) findViewById(R.id.config_drop_location_submit);
         configLocationSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(!configLocationTextbox.getText().toString().matches("")) {
-                    YoYo.with(Techniques.SlideOutUp).duration(200).withListener(new Animator.AnimatorListener() {
-                        @Override
-                        public void onAnimationStart(Animator animation) {}
-                        @Override
-                        public void onAnimationCancel(Animator animation) {}
-                        @Override
-                        public void onAnimationRepeat(Animator animation) {}
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            configDropdown.setVisibility(View.GONE);
-                        }
-                    }).playOn(configDropdown);
-                    inputMethodManager.hideSoftInputFromWindow(configLocationTextbox.getWindowToken(), 0);
+                    toggleConfigDropdown();
+                    listAdapter.clear();
+                    unchainedLocation = configLocationTextbox.getText().toString();
+                    new UnchainedAsync().execute("restaurant", unchainedLocation);
                 } else {
                     YoYo.with(Techniques.Shake).duration(700).playOn(configLocationTextbox);
                 }
@@ -120,30 +113,34 @@ public class MainActivity extends AppCompatActivity {
 
             return true;
         } else if(id == R.id.action_location) {
-            if(configDropdown.getVisibility() == View.GONE) {
-                configDropdown.setVisibility(View.VISIBLE);
-                YoYo.with(Techniques.SlideInDown).duration(200).playOn(configDropdown);
-                configLocationTextbox.requestFocus();
-                inputMethodManager.showSoftInput(configLocationTextbox, InputMethodManager.SHOW_FORCED);
-            } else {
-                YoYo.with(Techniques.SlideOutUp).duration(200).withListener(new Animator.AnimatorListener() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {}
-                    @Override
-                    public void onAnimationCancel(Animator animation) {}
-                    @Override
-                    public void onAnimationRepeat(Animator animation) {}
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        configDropdown.setVisibility(View.GONE);
-                    }
-                }).playOn(configDropdown);
-                inputMethodManager.hideSoftInputFromWindow(configLocationTextbox.getWindowToken(), 0);
-            }
+            toggleConfigDropdown();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void toggleConfigDropdown() {
+        if(configDropdown.getVisibility() == View.GONE) {
+            configDropdown.setVisibility(View.VISIBLE);
+            YoYo.with(Techniques.SlideInDown).duration(200).playOn(configDropdown);
+            configLocationTextbox.requestFocus();
+            inputMethodManager.showSoftInput(configLocationTextbox, InputMethodManager.SHOW_FORCED);
+        } else {
+            YoYo.with(Techniques.SlideOutUp).duration(200).withListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {}
+                @Override
+                public void onAnimationCancel(Animator animation) {}
+                @Override
+                public void onAnimationRepeat(Animator animation) {}
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    configDropdown.setVisibility(View.GONE);
+                }
+            }).playOn(configDropdown);
+            inputMethodManager.hideSoftInputFromWindow(configLocationTextbox.getWindowToken(), 0);
+        }
     }
 
     private class UnchainedAsync extends AsyncTask<String, Void, Void> {
@@ -151,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(String... params) {
             String location = params[1];
-            if(location.matches("-?[0-9.]*,-?[0-9.]*")) {
+            if(!location.matches("-?[0-9.]*,-?[0-9.]*")) {
                 location = Util.getLatLngFromMapsQuery(location);
             }
             UnchainedAPI unchainedAPI = new UnchainedAPI(YELP_KEY, YELP_SECRET, YELP_TOKEN, YELP_TOKEN_SECRET,
