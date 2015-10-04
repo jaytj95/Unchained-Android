@@ -6,12 +6,15 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.transition.Fade;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
@@ -47,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private SwipeRefreshLayout swipeRefreshLayout;
     private ArrayList<UnchainedRestaurant> nonChains;
     private Toolbar toolbar;
-    private RelativeLayout configDropdown;
+    private RelativeLayout configDropdown, refreshNotification;
     private EditText configTextbox;
     private ImageButton configLocationSubmit, configQuerySubmit;
     private InputMethodManager inputMethodManager;
@@ -120,6 +123,19 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         });
 
         configTextbox = (EditText) findViewById(R.id.config_drop_location_text);
+        configTextbox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    if(configLocationSubmit.getVisibility() == View.VISIBLE)
+                        configLocationSubmit.performClick();
+                    else
+                        configQuerySubmit.performClick();
+                    return true;
+                }
+                return false;
+            }
+        });
 
         configDropdown.setVisibility(View.GONE);
 
@@ -183,6 +199,15 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         listHeader.setLayoutParams(new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, pix));
         listView.addHeaderView(listHeader, null, true);
         listView.setAdapter(null);
+
+        refreshNotification = (RelativeLayout) findViewById(R.id.refresh_notif);
+        refreshNotification.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                swipeRefreshLayout.setRefreshing(true);
+                onRefresh();
+            }
+        });
 //        new UnchainedAsync().execute(unchainedRestaurantQuery, unchainedLocation);
 
     }
@@ -324,12 +349,14 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 @Override
                 public void onAnimationStart(Animator animation) {
                     YoYo.with(Techniques.FadeOut).duration(350).playOn(refreshImg2);
+                    YoYo.with(Techniques.SlideOutDown).duration(350).playOn(refreshNotification);
                 }
 
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     refreshImg1.setVisibility(View.GONE);
                     refreshImg2.setVisibility(View.GONE);
+                    refreshNotification.setVisibility(View.GONE);
                 }
 
                 @Override
@@ -345,9 +372,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         } else {
             refreshImg1.setVisibility(View.VISIBLE);
             refreshImg2.setVisibility(View.VISIBLE);
-            YoYo.with(Techniques.FadeIn).duration(350).playOn(refreshImg1);
-            YoYo.with(Techniques.FadeIn).duration(350).playOn(refreshImg2);
-
+            refreshNotification.setVisibility(View.VISIBLE);
+            YoYo.with(Techniques.SlideInUp).duration(350).playOn(refreshNotification);
         }
     }
 }
