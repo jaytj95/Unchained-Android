@@ -17,10 +17,10 @@ import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
@@ -29,13 +29,11 @@ import com.jasonjohn.unchainedapi.UnchainedRestaurant;
 import com.jasonjohn.unchainedapi.Util;
 import com.nineoldandroids.animation.Animator;
 
-import org.w3c.dom.Text;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
     public static final String GOOGLE_PLACES_KEY = "AIzaSyBNxtP1FnsCQoBz6pOozC-WVRo_2ZoCmzQ";
     public static final String YELP_KEY = "1y6Y9ZQBDOctIKrq5NO7XQ";
     public static final String YELP_SECRET = "852Nfvhn9yd7GnXoOyNsygmT2Ks";
@@ -53,8 +51,8 @@ public class MainActivity extends AppCompatActivity {
     private EditText configTextbox;
     private ImageButton configLocationSubmit, configQuerySubmit;
     private InputMethodManager inputMethodManager;
-    private View listHeader;
     private TextView configLocationTv, configQueryTv;
+    private ImageView refreshImg1, refreshImg2;
 
     private String unchainedLocation, unchainedRestaurantQuery;
 
@@ -68,6 +66,14 @@ public class MainActivity extends AppCompatActivity {
 
         listView = (ListView) findViewById(R.id.listview);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeLayout);
+        swipeRefreshLayout.setColorSchemeResources(R.color.unchained_red, R.color.unchained_blue);
+        swipeRefreshLayout.setOnRefreshListener(this);
+//        swipeRefreshLayout.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                swipeRefreshLayout.setRefreshing(true);
+//            }
+//        });
 
         //config layout init
         configDropdown = (RelativeLayout) findViewById(R.id.config_drop);
@@ -77,9 +83,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(!configTextbox.getText().toString().matches("")) {
-                    listAdapter.clear();
                     unchainedLocation = configTextbox.getText().toString();
-                    new UnchainedAsync().execute(unchainedRestaurantQuery, unchainedLocation);
+//                    listAdapter.clear();
+//                    new UnchainedAsync().execute(unchainedRestaurantQuery, unchainedLocation);
+                    toggleRefreshIndicators(1);
                 } else {
                     YoYo.with(Techniques.Shake).duration(700).playOn(configTextbox);
                 }
@@ -96,9 +103,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(!configTextbox.getText().toString().matches("")) {
-                    listAdapter.clear();
                     unchainedRestaurantQuery = configTextbox.getText().toString();
-                    new UnchainedAsync().execute(unchainedRestaurantQuery, unchainedLocation);
+//                    listAdapter.clear();
+//                    new UnchainedAsync().execute(unchainedRestaurantQuery, unchainedLocation);
+                    toggleRefreshIndicators(1);
+
                 } else {
                     YoYo.with(Techniques.Shake).duration(700).playOn(configTextbox);
                 }
@@ -166,13 +175,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        refreshImg1 = (ImageView) listHeader.findViewById(R.id.header_refresh1);
+        refreshImg2 = (ImageView) listHeader.findViewById(R.id.header_refresh2);
+
         final float scale = getApplicationContext().getResources().getDisplayMetrics().density;
         int pix = (int) (100 * scale + 0.5f);
         listHeader.setLayoutParams(new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, pix));
         listView.addHeaderView(listHeader, null, true);
-
-
-        new UnchainedAsync().execute(unchainedRestaurantQuery, unchainedLocation);
+        listView.setAdapter(null);
+//        new UnchainedAsync().execute(unchainedRestaurantQuery, unchainedLocation);
 
     }
 
@@ -238,6 +249,17 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onRefresh() {
+        try {
+            listAdapter.clear();
+        } catch (NullPointerException e) {
+            //eat exception
+        }
+        new UnchainedAsync().execute(unchainedRestaurantQuery, unchainedLocation);
+        toggleRefreshIndicators(0);
+    }
+
     private class UnchainedAsync extends AsyncTask<String, Void, Void> {
 
         @Override
@@ -261,6 +283,7 @@ public class MainActivity extends AppCompatActivity {
             super.onPostExecute(aVoid);
             listAdapter = new UnchainedAdapter(getApplicationContext(), R.layout.list_item, nonChains);
             listView.setAdapter(listAdapter);
+            swipeRefreshLayout.setRefreshing(false);
         }
     }
 
@@ -290,6 +313,41 @@ public class MainActivity extends AppCompatActivity {
 
         private class ViewHolder {
             TextView venueName, venueAddress, venueRating;
+        }
+
+    }
+
+
+    private void toggleRefreshIndicators(int onOff) {
+        if(onOff == 0) {
+            YoYo.with(Techniques.FadeOut).duration(350).withListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    YoYo.with(Techniques.FadeOut).duration(350).playOn(refreshImg2);
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    refreshImg1.setVisibility(View.GONE);
+                    refreshImg2.setVisibility(View.GONE);
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animation) {
+
+                }
+            }).playOn(refreshImg1);
+        } else {
+            refreshImg1.setVisibility(View.VISIBLE);
+            refreshImg2.setVisibility(View.VISIBLE);
+            YoYo.with(Techniques.FadeIn).duration(350).playOn(refreshImg1);
+            YoYo.with(Techniques.FadeIn).duration(350).playOn(refreshImg2);
+
         }
     }
 }
