@@ -9,16 +9,18 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
@@ -26,6 +28,8 @@ import com.jasonjohn.unchainedapi.UnchainedAPI;
 import com.jasonjohn.unchainedapi.UnchainedRestaurant;
 import com.jasonjohn.unchainedapi.Util;
 import com.nineoldandroids.animation.Animator;
+
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,9 +50,11 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<UnchainedRestaurant> nonChains;
     private Toolbar toolbar;
     private RelativeLayout configDropdown;
-    private EditText configLocationTextbox;
-    private ImageButton configLocationSubmit;
+    private EditText configTextbox;
+    private ImageButton configLocationSubmit, configQuerySubmit;
     private InputMethodManager inputMethodManager;
+    private View listHeader;
+    private TextView configLocationTv, configQueryTv;
 
     private String unchainedLocation, unchainedRestaurantQuery;
 
@@ -70,27 +76,103 @@ public class MainActivity extends AppCompatActivity {
         configLocationSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!configLocationTextbox.getText().toString().matches("")) {
-                    toggleConfigDropdown();
+                if(!configTextbox.getText().toString().matches("")) {
                     listAdapter.clear();
-                    unchainedLocation = configLocationTextbox.getText().toString();
-                    new UnchainedAsync().execute("restaurant", unchainedLocation);
+                    unchainedLocation = configTextbox.getText().toString();
+                    new UnchainedAsync().execute(unchainedRestaurantQuery, unchainedLocation);
                 } else {
-                    YoYo.with(Techniques.Shake).duration(700).playOn(configLocationTextbox);
+                    YoYo.with(Techniques.Shake).duration(700).playOn(configTextbox);
                 }
+
+                toggleConfigDropdown(0);
+                configTextbox.setText("");
+                configQueryTv.setText(unchainedRestaurantQuery);
+                configLocationTv.setText(unchainedLocation);
             }
         });
 
-        configLocationTextbox = (EditText) findViewById(R.id.config_drop_location_text);
+        configQuerySubmit = (ImageButton) findViewById(R.id.config_drop_query_submit);
+        configQuerySubmit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!configTextbox.getText().toString().matches("")) {
+                    listAdapter.clear();
+                    unchainedRestaurantQuery = configTextbox.getText().toString();
+                    new UnchainedAsync().execute(unchainedRestaurantQuery, unchainedLocation);
+                } else {
+                    YoYo.with(Techniques.Shake).duration(700).playOn(configTextbox);
+                }
+
+                toggleConfigDropdown(1);
+                configTextbox.setText("");
+                configQueryTv.setText(unchainedRestaurantQuery);
+                configLocationTv.setText(unchainedLocation);
+            }
+        });
+
+        configTextbox = (EditText) findViewById(R.id.config_drop_location_text);
 
         configDropdown.setVisibility(View.GONE);
 
         inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
         toolbar.bringToFront();
-        new UnchainedAsync().execute("restaurant", "34.0619825,-83.9833599");
+        unchainedRestaurantQuery = "restaurant";
+        unchainedLocation = "34.0619825,-83.9833599";
+
+        listView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                YoYo.with(Techniques.SlideOutUp).duration(200).withListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        configDropdown.setVisibility(View.GONE);
+                    }
+                }).playOn(configDropdown);
+                inputMethodManager.hideSoftInputFromWindow(configTextbox.getWindowToken(), 0);
+                return false;
+            }
+        });
+
+        View listHeader = View.inflate(getApplicationContext(), R.layout.list_header, null);
+        configQueryTv = (TextView) listHeader.findViewById(R.id.header_query);
+        configQueryTv.setText(unchainedRestaurantQuery);
+        configQueryTv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleConfigDropdown(1);
+            }
+        });
+
+        configLocationTv = (TextView) listHeader.findViewById(R.id.header_location);
+        configLocationTv.setText(unchainedLocation);
+        configLocationTv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleConfigDropdown(0);
+            }
+        });
+
+        final float scale = getApplicationContext().getResources().getDisplayMetrics().density;
+        int pix = (int) (100 * scale + 0.5f);
+        listHeader.setLayoutParams(new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, pix));
+        listView.addHeaderView(listHeader, null, true);
 
 
+        new UnchainedAsync().execute(unchainedRestaurantQuery, unchainedLocation);
 
     }
 
@@ -110,22 +192,24 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_search) {
-
+            toggleConfigDropdown(1);
             return true;
         } else if(id == R.id.action_location) {
-            toggleConfigDropdown();
+            toggleConfigDropdown(0);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    private void toggleConfigDropdown() {
+    private void toggleConfigDropdown(int type) {
+        //type = 0 for LOCATION
+        //type = 1 for QUERY
         if(configDropdown.getVisibility() == View.GONE) {
             configDropdown.setVisibility(View.VISIBLE);
             YoYo.with(Techniques.SlideInDown).duration(200).playOn(configDropdown);
-            configLocationTextbox.requestFocus();
-            inputMethodManager.showSoftInput(configLocationTextbox, InputMethodManager.SHOW_FORCED);
+            configTextbox.requestFocus();
+            inputMethodManager.showSoftInput(configTextbox, InputMethodManager.SHOW_FORCED);
         } else {
             YoYo.with(Techniques.SlideOutUp).duration(200).withListener(new Animator.AnimatorListener() {
                 @Override
@@ -139,8 +223,19 @@ public class MainActivity extends AppCompatActivity {
                     configDropdown.setVisibility(View.GONE);
                 }
             }).playOn(configDropdown);
-            inputMethodManager.hideSoftInputFromWindow(configLocationTextbox.getWindowToken(), 0);
+            inputMethodManager.hideSoftInputFromWindow(configTextbox.getWindowToken(), 0);
         }
+
+        if(type == 0) {
+            configLocationSubmit.setVisibility(View.VISIBLE);
+            configQuerySubmit.setVisibility(View.GONE);
+            configTextbox.setHint("Enter your location (eg. Mall of Georgia)");
+        } else {
+            configLocationSubmit.setVisibility(View.GONE);
+            configQuerySubmit.setVisibility(View.VISIBLE);
+            configTextbox.setHint("Restaurant? Bar? Sushi? Pizza?");
+        }
+
     }
 
     private class UnchainedAsync extends AsyncTask<String, Void, Void> {

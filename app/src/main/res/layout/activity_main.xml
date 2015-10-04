@@ -19,6 +19,8 @@
 
         <ListView
             android:id="@+id/listview"
+            android:drawSelectorOnTop="false"
+            android:fastScrollEnabled="false"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             >
@@ -31,7 +33,7 @@
         android:id="@+id/config_drop"
         android:minHeight="?attr/actionBarSize"
         android:layout_width="match_parent"
-        android:layout_height="?android:attr/actionBarSize"
+        android:layout_height="100dp"
         android:background="@color/unchained_blue"
         android:layout_alignTop="@+id/swipeLayout"
         android:layout_alignParentStart="true">
@@ -43,7 +45,6 @@
             android:paddingLeft="16dp"
             android:id="@+id/config_drop_location_text"
             android:textColor="#fff"
-            android:hint="Enter your location (eg. Mall of Georgia)"
             android:background="@android:color/transparent"
             android:backgroundTint="#fff"
             android:layout_alignParentBottom="true"
@@ -61,6 +62,17 @@
             android:layout_alignParentEnd="true"
             android:paddingRight="4dp"/>
 
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_action_action_done"
+            android:background="@null"
+            android:id="@+id/config_drop_query_submit"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:paddingRight="4dp"/>
+
     </RelativeLayout>
+
 
 </RelativeLayout>
