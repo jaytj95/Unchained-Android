@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Unchained-Android.iml" filepath="$PROJECT_DIR$/Unchained-Android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/UnchainedAndroid.iml" filepath="$PROJECT_DIR$/UnchainedAndroid.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

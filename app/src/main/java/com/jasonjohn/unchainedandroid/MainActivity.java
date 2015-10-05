@@ -142,8 +142,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
         toolbar.bringToFront();
-        unchainedRestaurantQuery = "restaurant";
-        unchainedLocation = "34.0619825,-83.9833599";
+        unchainedRestaurantQuery = "Sushi Restaurants";
+        unchainedLocation = "Mall of GA";
 
         listView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -374,6 +374,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             refreshImg2.setVisibility(View.VISIBLE);
             refreshNotification.setVisibility(View.VISIBLE);
             YoYo.with(Techniques.SlideInUp).duration(350).playOn(refreshNotification);
+            YoYo.with(Techniques.FadeIn).duration(350).playOn(refreshImg1);
+            YoYo.with(Techniques.FadeIn).duration(350).playOn(refreshImg2);
         }
     }
 }
