@@ -327,11 +327,12 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             LayoutInflater vi = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = vi.inflate(R.layout.list_item, null);
             viewHolder.venueName = (TextView) convertView.findViewById(R.id.venueName);
-
+            viewHolder.venueAddress = (TextView) convertView.findViewById(R.id.venueAddress);
 
             UnchainedRestaurant ucr = this.getItem(position);
 
             viewHolder.venueName.setText(ucr.getName());
+            viewHolder.venueAddress.setText(ucr.getAddress());
 
             return convertView;
         }
