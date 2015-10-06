@@ -6,7 +6,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.transition.Fade;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,15 +24,14 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.jasonjohn.unchainedapi.UnchainedAPI;
+import com.jasonjohn.unchainedapi.UnchainedAPIException;
 import com.jasonjohn.unchainedapi.UnchainedRestaurant;
 import com.jasonjohn.unchainedapi.Util;
 import com.nineoldandroids.animation.Animator;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private EditText configTextbox;
     private ImageButton configLocationSubmit, configQuerySubmit;
     private InputMethodManager inputMethodManager;
-    private TextView configLocationTv, configQueryTv;
+    private TextView configLocationTv, configQueryTv, errorTv;
     private ImageView refreshImg1, refreshImg2;
 
     private String unchainedLocation, unchainedRestaurantQuery;
@@ -78,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 //            }
 //        });
 
+        errorTv = (TextView) findViewById(R.id.error_text);
         //config layout init
         configDropdown = (RelativeLayout) findViewById(R.id.config_drop);
 
@@ -283,32 +283,69 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }
         new UnchainedAsync().execute(unchainedRestaurantQuery, unchainedLocation);
         toggleRefreshIndicators(0);
+        setErrorUi(null);
     }
 
     private class UnchainedAsync extends AsyncTask<String, Void, Void> {
-
+        final private int ERROR_GEO = 1;
+        final private int ERROR_API = 2;
+        private int errorCode = 0;
         @Override
         protected Void doInBackground(String... params) {
+            Log.d("UCA", "Checkpoint 1");
             String location = params[1];
             if(!location.matches("-?[0-9.]*,-?[0-9.]*")) {
-                location = Util.getLatLngFromMapsQuery(location);
+                try {
+                    Log.d("UCA", "Checkpoint 1.5");
+                    location = Util.getLatLngFromMapsQuery(location);
+                    Log.d("UCA", "Checkpoint 2");
+                } catch (UnchainedAPIException e) {
+                    setErrorCode(ERROR_GEO);
+                }
             }
+
             UnchainedAPI unchainedAPI = new UnchainedAPI(YELP_KEY, YELP_SECRET, YELP_TOKEN, YELP_TOKEN_SECRET,
                     FOURSQUARE_ID, FOURSQUARE_SECRET, GOOGLE_PLACES_KEY);
             try {
                 nonChains = unchainedAPI.getUnchainedRestaurants(params[0], location);
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (UnchainedAPIException e) {
+                if(getErrorCode() != ERROR_GEO)
+                    setErrorCode(ERROR_API);
+            }
+
+            if(nonChains.size() == 0 && getErrorCode() != ERROR_GEO) {
+                setErrorCode(ERROR_API);
             }
             return null;
         }
-
         @Override
         protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            listAdapter = new UnchainedAdapter(getApplicationContext(), R.layout.list_item, nonChains);
-            listView.setAdapter(listAdapter);
+//            super.onPostExecute(aVoid);
             swipeRefreshLayout.setRefreshing(false);
+            if(getErrorCode() == 0) {
+                listAdapter = new UnchainedAdapter(getApplicationContext(), R.layout.list_item, nonChains);
+                listView.setAdapter(listAdapter);
+            } else {
+                String msg;
+                switch(getErrorCode()) {
+                    case ERROR_GEO: //GEO ERROR
+                        msg = "Error finding location";
+                        setErrorUi(msg);
+                        break;
+                    case ERROR_API:
+                        msg = "We can't find any venues :(";
+                        setErrorUi(msg);
+
+                }
+            }
+        }
+
+        private void setErrorCode(int code) {
+            errorCode = code;
+        }
+
+        private int getErrorCode() {
+            return errorCode;
         }
     }
 
@@ -377,6 +414,16 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             YoYo.with(Techniques.SlideInUp).duration(350).playOn(refreshNotification);
             YoYo.with(Techniques.FadeIn).duration(350).playOn(refreshImg1);
             YoYo.with(Techniques.FadeIn).duration(350).playOn(refreshImg2);
+        }
+    }
+
+    private void setErrorUi(String msg) {
+        if(msg == null) {
+            errorTv.setVisibility(View.VISIBLE);
+            YoYo.with(Techniques.SlideOutUp).duration(350).playOn(errorTv);
+        } else {
+            errorTv.setText(msg);
+            YoYo.with(Techniques.SlideInDown).duration(350).playOn(errorTv);
         }
     }
 }

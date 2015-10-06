@@ -25,9 +25,8 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:22.2.1'
-    provided files('libs/Unchained_1.0.0.jar')
+    compile files('libs/Unchained_1.2.1.jar')
     compile 'com.android.support:appcompat-v7:22.2.1'
     compile 'com.android.support:support-v4:22.2.1'
     compile 'com.nineoldandroids:library:2.4.0'
