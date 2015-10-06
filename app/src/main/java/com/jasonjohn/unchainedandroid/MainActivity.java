@@ -22,6 +22,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.daimajia.androidanimations.library.Techniques;
@@ -377,7 +378,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }
 
         private class ViewHolder {
-            TextView venueName, venueAddress, venueRating;
+            TextView venueName, venueAddress;
+            ProgressBar ratingBar;
         }
 
     }
