@@ -306,15 +306,17 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
             UnchainedAPI unchainedAPI = new UnchainedAPI(YELP_KEY, YELP_SECRET, YELP_TOKEN, YELP_TOKEN_SECRET,
                     FOURSQUARE_ID, FOURSQUARE_SECRET, GOOGLE_PLACES_KEY);
-            try {
-                nonChains = unchainedAPI.getUnchainedRestaurants(params[0], location);
-            } catch (UnchainedAPIException e) {
-                if(getErrorCode() != ERROR_GEO)
-                    setErrorCode(ERROR_API);
-            }
+            if(getErrorCode() == 0) {
+                try {
+                    nonChains = unchainedAPI.getUnchainedRestaurants(params[0], location);
+                } catch (UnchainedAPIException e) {
+                    if (getErrorCode() != ERROR_GEO)
+                        setErrorCode(ERROR_API);
+                }
 
-            if(nonChains.size() == 0 && getErrorCode() != ERROR_GEO) {
-                setErrorCode(ERROR_API);
+                if (nonChains.size() == 0 && getErrorCode() != ERROR_GEO) {
+                    setErrorCode(ERROR_API);
+                }
             }
             return null;
         }

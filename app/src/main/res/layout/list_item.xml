@@ -2,35 +2,68 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="200dp">
 
-
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="250dp"
         android:scaleType="centerCrop"
         android:id="@+id/imageView"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Large Text"
-        android:fontFamily="sans-serif-thin"
-        android:id="@+id/venueName"
-        android:textStyle="bold"
-        android:textColor="#fff"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="@drawable/list_gradient_shade"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-thin"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Address"
-        android:id="@+id/venueAddress"
-        android:layout_below="@+id/venueName"
-        android:layout_alignParentStart="true" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Large Text"
+            android:fontFamily="sans-serif-thin"
+            android:id="@+id/venueName"
+            android:textStyle="bold"
+            android:textColor="#fff"
+            android:layout_above="@+id/venueAddress"
+            android:layout_alignParentStart="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-thin"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Address"
+            android:id="@+id/venueAddress"
+            android:layout_above="@+id/linearLayout"
+            android:layout_alignParentStart="true" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="25dp"
+            android:orientation="horizontal"
+            android:weightSum="100"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:id="@+id/linearLayout">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/list_rating_bar"
+                android:layout_weight="70"
+                android:layout_below="@+id/venueAddress"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:id="@+id/beam" />
+
+
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
 
 </RelativeLayout>
