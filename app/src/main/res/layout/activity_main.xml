@@ -1,7 +1,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main_layout"
-    android:layout_height="match_parent" tools:context=".MainActivity">
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
@@ -16,7 +19,8 @@
         android:id="@+id/swipeLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/toolbar">
+        android:layout_below="@+id/toolbar"
+        android:layout_above="@+id/adView">
 
         <ListView
             android:id="@+id/listview"
@@ -55,27 +59,56 @@
             android:layout_toStartOf="@+id/config_drop_location_submit"
             android:layout_alignParentTop="true" />
 
-        <ImageButton
+        <Button
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:src="@drawable/ic_communication_location_on"
+            android:drawableLeft="@drawable/ic_communication_location_on"
+            android:text="OK"
+            android:textSize="25sp"
             android:background="@null"
             android:id="@+id/config_drop_location_submit"
+            android:paddingRight="5dp"
             android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:paddingRight="4dp"/>
+            android:layout_alignParentRight="true" />
 
-        <ImageButton
+        <Button
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:src="@drawable/ic_action_action_done"
+            android:drawableLeft="@drawable/ic_action_action_done"
+            android:text="OK"
+            android:textSize="25sp"
             android:background="@null"
             android:id="@+id/config_drop_query_submit"
+            android:paddingRight="5dp"
             android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:paddingRight="4dp"/>
+            android:layout_alignParentEnd="true" />
 
     </RelativeLayout>
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="ERROR"
+        android:fontFamily="sans-serif-thin"
+        android:textColor="#FFF"
+        android:id="@+id/error_text"
+        android:textSize="25sp"
+        android:visibility="invisible"
+        android:layout_above="@+id/adView"
+        android:layout_centerHorizontal="true" />
+
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/adView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        ads:adSize="BANNER"
+        android:visibility="visible"
+        ads:adUnitId="@string/ad_unit">
+    </com.google.android.gms.ads.AdView>
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -91,24 +124,24 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textSize="20sp"
-            android:text="Swipe to Refresh"
+            android:layout_marginTop="5dp"
+            android:text="Refresh"
             android:drawableLeft="@drawable/ic_action_action_autorenew"
             android:drawableRight="@drawable/ic_action_action_autorenew"
             android:id="@+id/textView"
-            android:layout_centerInParent="true"/>
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="or Pull Down to Refresh"
+            android:id="@+id/textView2"
+            android:textSize="12sp"
+            android:layout_below="@+id/textView"
+            android:layout_centerHorizontal="true" />
     </RelativeLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="ERROR"
-        android:fontFamily="sans-serif-thin"
-        android:textColor="#FFF"
-        android:id="@+id/error_text"
-        android:visibility="visible"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
 
 
 </RelativeLayout>

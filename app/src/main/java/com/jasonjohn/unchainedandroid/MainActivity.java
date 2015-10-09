@@ -18,8 +18,8 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -27,11 +27,14 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.jasonjohn.unchainedapi.UnchainedAPI;
 import com.jasonjohn.unchainedapi.UnchainedAPIException;
 import com.jasonjohn.unchainedapi.UnchainedRestaurant;
 import com.jasonjohn.unchainedapi.Util;
 import com.nineoldandroids.animation.Animator;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,11 +55,12 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private Toolbar toolbar;
     private RelativeLayout configDropdown, refreshNotification;
     private EditText configTextbox;
-    private ImageButton configLocationSubmit, configQuerySubmit;
+    private Button configLocationSubmit, configQuerySubmit;
     private InputMethodManager inputMethodManager;
     private TextView configLocationTv, configQueryTv, errorTv;
     private ImageView refreshImg1, refreshImg2;
 
+    private boolean firstLocSetDone = false, firstQuerySetDone = false;
     private String unchainedLocation, unchainedRestaurantQuery;
 
     @Override
@@ -71,26 +75,24 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeLayout);
         swipeRefreshLayout.setColorSchemeResources(R.color.unchained_red, R.color.unchained_blue);
         swipeRefreshLayout.setOnRefreshListener(this);
-//        swipeRefreshLayout.post(new Runnable() {
-//            @Override
-//            public void run() {
-//                swipeRefreshLayout.setRefreshing(true);
-//            }
-//        });
+
+        AdView mAdView = (AdView) findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
 
         errorTv = (TextView) findViewById(R.id.error_text);
         //config layout init
         configDropdown = (RelativeLayout) findViewById(R.id.config_drop);
 
-        configLocationSubmit = (ImageButton) findViewById(R.id.config_drop_location_submit);
+        configLocationSubmit = (Button) findViewById(R.id.config_drop_location_submit);
         configLocationSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(!configTextbox.getText().toString().matches("")) {
                     unchainedLocation = configTextbox.getText().toString();
-//                    listAdapter.clear();
-//                    new UnchainedAsync().execute(unchainedRestaurantQuery, unchainedLocation);
-                    toggleRefreshIndicators(1);
+                    firstLocSetDone = true;
+                    if(firstQuerySetDone && firstLocSetDone)
+                        toggleRefreshIndicators(1);
                 } else {
                     YoYo.with(Techniques.Shake).duration(700).playOn(configTextbox);
                 }
@@ -102,15 +104,15 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             }
         });
 
-        configQuerySubmit = (ImageButton) findViewById(R.id.config_drop_query_submit);
+        configQuerySubmit = (Button) findViewById(R.id.config_drop_query_submit);
         configQuerySubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(!configTextbox.getText().toString().matches("")) {
                     unchainedRestaurantQuery = configTextbox.getText().toString();
-//                    listAdapter.clear();
-//                    new UnchainedAsync().execute(unchainedRestaurantQuery, unchainedLocation);
-                    toggleRefreshIndicators(1);
+                    firstQuerySetDone = true;
+                    if(firstQuerySetDone && firstLocSetDone)
+                        toggleRefreshIndicators(1);
 
                 } else {
                     YoYo.with(Techniques.Shake).duration(700).playOn(configTextbox);
@@ -143,8 +145,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
         toolbar.bringToFront();
-        unchainedRestaurantQuery = "Sushi Restaurants";
-        unchainedLocation = "Mall of GA";
+
+        unchainedRestaurantQuery = "Enter Food Query Here";
+        unchainedLocation = "Enter Location Here";
 
         listView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -266,11 +269,11 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         if(type == 0) {
             configLocationSubmit.setVisibility(View.VISIBLE);
             configQuerySubmit.setVisibility(View.GONE);
-            configTextbox.setHint("Enter your location (eg. Mall of Georgia)");
+            configTextbox.setHint("Enter your location (eg. Atlanta, GA)");
         } else {
             configLocationSubmit.setVisibility(View.GONE);
             configQuerySubmit.setVisibility(View.VISIBLE);
-            configTextbox.setHint("Restaurant? Bar? Sushi? Pizza?");
+            configTextbox.setHint("What're you in the mood for?");
         }
 
     }
@@ -368,18 +371,25 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             convertView = vi.inflate(R.layout.list_item, null);
             viewHolder.venueName = (TextView) convertView.findViewById(R.id.venueName);
             viewHolder.venueAddress = (TextView) convertView.findViewById(R.id.venueAddress);
+            viewHolder.ratingBar = (ProgressBar) convertView.findViewById(R.id.ratingBar);
+            viewHolder.imgView = (ImageView) convertView.findViewById(R.id.venueImg);
 
             UnchainedRestaurant ucr = this.getItem(position);
 
             viewHolder.venueName.setText(ucr.getName());
             viewHolder.venueAddress.setText(ucr.getAddress());
-
+            viewHolder.ratingBar.setProgress((int) (ucr.getRating() * 20));
+            ArrayList picUrls = ucr.getPicUrls();
+            if(picUrls.size() > 0) {
+                Picasso.with(getApplicationContext()).load(ucr.getPicUrls().get(0)).into(viewHolder.imgView);
+            }
             return convertView;
         }
 
         private class ViewHolder {
             TextView venueName, venueAddress;
             ProgressBar ratingBar;
+            ImageView imgView;
         }
 
     }
@@ -412,6 +422,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 }
             }).playOn(refreshImg1);
         } else {
+
             refreshImg1.setVisibility(View.VISIBLE);
             refreshImg2.setVisibility(View.VISIBLE);
             refreshNotification.setVisibility(View.VISIBLE);
@@ -423,11 +434,31 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     private void setErrorUi(String msg) {
         if(msg == null) {
-            errorTv.setVisibility(View.VISIBLE);
-            YoYo.with(Techniques.SlideOutUp).duration(350).playOn(errorTv);
+            YoYo.with(Techniques.SlideOutDown).duration(350).withListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    errorTv.setVisibility(View.INVISIBLE);
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animation) {
+
+                }
+            }).playOn(errorTv);
         } else {
+            errorTv.setVisibility(View.VISIBLE);
             errorTv.setText(msg);
-            YoYo.with(Techniques.SlideInDown).duration(350).playOn(errorTv);
+            YoYo.with(Techniques.SlideInUp).duration(350).playOn(errorTv);
         }
     }
 }
