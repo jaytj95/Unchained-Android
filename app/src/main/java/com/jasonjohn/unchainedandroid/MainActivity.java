@@ -1,10 +1,15 @@
 package com.jasonjohn.unchainedandroid;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.internal.view.ContextThemeWrapper;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -25,6 +30,8 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.google.android.gms.ads.AdRequest;
@@ -374,7 +381,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             viewHolder.ratingBar = (ProgressBar) convertView.findViewById(R.id.ratingBar);
             viewHolder.imgView = (ImageView) convertView.findViewById(R.id.venueImg);
 
-            UnchainedRestaurant ucr = this.getItem(position);
+            final UnchainedRestaurant ucr = this.getItem(position);
 
             viewHolder.venueName.setText(ucr.getName());
             viewHolder.venueAddress.setText(ucr.getAddress());
@@ -383,6 +390,14 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             if(picUrls.size() > 0) {
                 Picasso.with(getApplicationContext()).load(ucr.getPicUrls().get(0)).into(viewHolder.imgView);
             }
+
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    launchVenueActionContextMenu(MainActivity.this, ucr);
+                }
+            });
+
             return convertView;
         }
 
@@ -460,5 +475,60 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             errorTv.setText(msg);
             YoYo.with(Techniques.SlideInUp).duration(350).playOn(errorTv);
         }
+    }
+
+    /* launchVenueActionContextMenu(Context, UnchainedRestaurant)
+    * Called when a user clicks on a venue. Gives the user an option list to call uber, navigate
+    * to the venue, share the venue, or go to the venue website
+    */
+    private void launchVenueActionContextMenu(final Context mContext, final UnchainedRestaurant ucr) {
+        final CharSequence[] items = {"View Details", "Navigate to Venue", "Share Venue", "Go to Website"};
+        final AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(MainActivity.this, R.style.Dialog));
+        builder.setTitle(ucr.getName());
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int item) {
+                //location references for map links
+//                final String startLoc = userLocation.getLatitude() + "," + userLocation.getLongitude();
+//                final String destLoc = venue.getLat() + "," + venue.getLng();
+
+                //switch on the user's choice (index)
+                switch (item) {
+                    //view details
+                    case 0:
+                        //new layout coming soon
+                        break;
+                    //Navigate to Venue
+                    case 1:
+                        if (ucr.getAddress() != null) {
+                            Uri gmmIntentUri = Uri.parse("http://maps.google.com/maps?daddr=" + Uri.encode(ucr.getAddress()));
+                            Intent intent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                            startActivity(intent);
+                        }
+                        break;
+                    //Share Restaurant
+                    case 2:
+                        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+                        String shareBody = ucr.getName() + " seems like a good place to try out: ("
+                                + ucr.getWebsite() + ")\nTry Unchained for Android!";
+                        sharingIntent.setType("text/plain");
+                        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+                        startActivity(Intent.createChooser(sharingIntent, "Share Using"));
+                        break;
+                    //Go to Website
+                    case 3:
+                        if(ucr.getWebsite() != null) {
+                            String url = ucr.getWebsite();
+                            Intent i = new Intent(Intent.ACTION_VIEW);
+                            i.setData(Uri.parse(url));
+                            startActivity(i);
+                        } else {
+                            Toast.makeText(getApplicationContext(), "No Website Data", Toast.LENGTH_SHORT).show();
+                        }
+                        break;
+                }
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 }
