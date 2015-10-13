@@ -41,7 +41,7 @@
         android:layout_height="100dp"
         android:background="@color/unchained_blue"
         android:layout_alignTop="@+id/swipeLayout"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentLeft="true">
 
 
         <EditText
@@ -53,10 +53,11 @@
             android:background="@android:color/transparent"
             android:backgroundTint="#fff"
             android:imeOptions="actionDone"
+            android:inputType="textCapSentences"
             android:singleLine="true"
             android:layout_alignParentBottom="true"
-            android:layout_alignParentStart="true"
-            android:layout_toStartOf="@+id/config_drop_location_submit"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/config_drop_location_submit"
             android:layout_alignParentTop="true" />
 
         <Button
@@ -81,7 +82,7 @@
             android:id="@+id/config_drop_query_submit"
             android:paddingRight="5dp"
             android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true" />
+            android:layout_alignParentRight="true" />
 
     </RelativeLayout>
 
@@ -117,7 +118,7 @@
         android:id="@+id/refresh_notif"
         android:visibility="gone"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentLeft="true">
 
         <TextView
             android:layout_width="wrap_content"

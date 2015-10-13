@@ -44,6 +44,7 @@ import com.nineoldandroids.animation.Animator;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
@@ -69,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     private boolean firstLocSetDone = false, firstQuerySetDone = false;
     private String unchainedLocation, unchainedRestaurantQuery;
+    private UnchainedAPI unchainedAPI;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -219,7 +221,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 onRefresh();
             }
         });
-//        new UnchainedAsync().execute(unchainedRestaurantQuery, unchainedLocation);
+
+        unchainedAPI = new UnchainedAPI(YELP_KEY, YELP_SECRET, YELP_TOKEN, YELP_TOKEN_SECRET,
+                FOURSQUARE_ID, FOURSQUARE_SECRET, GOOGLE_PLACES_KEY);
 
     }
 
@@ -315,8 +319,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 }
             }
 
-            UnchainedAPI unchainedAPI = new UnchainedAPI(YELP_KEY, YELP_SECRET, YELP_TOKEN, YELP_TOKEN_SECRET,
-                    FOURSQUARE_ID, FOURSQUARE_SECRET, GOOGLE_PLACES_KEY);
             if(getErrorCode() == 0) {
                 try {
                     nonChains = unchainedAPI.getUnchainedRestaurants(params[0], location);
@@ -346,7 +348,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                         setErrorUi(msg);
                         break;
                     case ERROR_API:
-                        msg = "We can't find any venues :(";
+                        msg = "We can't find any restaurants :(";
                         setErrorUi(msg);
 
                 }
@@ -495,7 +497,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 switch (item) {
                     //view details
                     case 0:
-                        //new layout coming soon
+                        Intent i = new Intent(getApplicationContext(), VenueDetailActivity.class);
+                        HashMap<String, Object> hashMap = Util.breakdownUCR(ucr);
+                        i.putExtra("ucr", hashMap);
+                        startActivity(i);
                         break;
                     //Navigate to Venue
                     case 1:
@@ -518,9 +523,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     case 3:
                         if(ucr.getWebsite() != null) {
                             String url = ucr.getWebsite();
-                            Intent i = new Intent(Intent.ACTION_VIEW);
-                            i.setData(Uri.parse(url));
-                            startActivity(i);
+                            Intent i3 = new Intent(Intent.ACTION_VIEW);
+                            i3.setData(Uri.parse(url));
+                            startActivity(i3);
                         } else {
                             Toast.makeText(getApplicationContext(), "No Website Data", Toast.LENGTH_SHORT).show();
                         }
