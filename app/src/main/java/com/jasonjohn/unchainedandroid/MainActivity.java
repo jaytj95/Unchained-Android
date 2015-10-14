@@ -155,8 +155,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         toolbar.bringToFront();
 
-        unchainedRestaurantQuery = "Enter Food Query Here";
-        unchainedLocation = "Enter Location Here";
+//        unchainedRestaurantQuery = "Enter Food Query Here";
+//        unchainedLocation = "Enter Location Here";
+        unchainedRestaurantQuery = "Sushi";
+        unchainedLocation = "Mall of GA";
 
         listView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -392,11 +394,20 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             if(picUrls.size() > 0) {
                 Picasso.with(getApplicationContext()).load(ucr.getPicUrls().get(0)).into(viewHolder.imgView);
             }
-
             convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Intent i = new Intent(getApplicationContext(), VenueDetailActivity.class);
+                    HashMap<String, Object> hashMap = Util.breakdownUCR(ucr);
+                    i.putExtra("ucr", hashMap);
+                    startActivity(i);
+                }
+            });
+            convertView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
                     launchVenueActionContextMenu(MainActivity.this, ucr);
+                    return true;
                 }
             });
 
