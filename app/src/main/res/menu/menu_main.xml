@@ -11,4 +11,9 @@
         android:icon="@drawable/ic_action_device_gps_fixed"
         app:showAsAction="always"
         android:title="Search"/>
+    <item
+        android:id="@+id/action_favs"
+        android:icon="@drawable/abc_btn_rating_star_on_mtrl_alpha"
+        app:showAsAction="always"
+        android:title="Search"/>
 </menu>

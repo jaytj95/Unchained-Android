@@ -1,8 +1,10 @@
 package com.jasonjohn.unchainedandroid;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -24,6 +26,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
 import com.jasonjohn.unchainedapi.Unchained4SQRestaurant;
 import com.jasonjohn.unchainedapi.UnchainedRestaurant;
 import com.jasonjohn.unchainedapi.UnchainedYelpRestaurant;
@@ -85,7 +88,8 @@ public class VenueDetailActivity extends AppCompatActivity implements OnMapReady
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Unchained Restaurant saving coming soon!", Snackbar.LENGTH_LONG)
+                storeUCR(ucr);
+                Snackbar.make(view, "Saved Unchained Restaurant!", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
@@ -167,5 +171,14 @@ public class VenueDetailActivity extends AppCompatActivity implements OnMapReady
         CameraPosition cameraPosition = new CameraPosition.Builder().target(ucrMarker).zoom(13.0f).build();
         CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPosition);
         map.moveCamera(cameraUpdate);
+    }
+
+    private void storeUCR(UnchainedRestaurant ucr) {
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor prefsEditor = sharedPrefs.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(ucr);
+        prefsEditor.putString(ucr.getName(), json);
+        prefsEditor.commit();
     }
 }

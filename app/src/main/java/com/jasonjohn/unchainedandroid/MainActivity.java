@@ -3,8 +3,10 @@ package com.jasonjohn.unchainedandroid;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -36,6 +38,7 @@ import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.gson.Gson;
 import com.jasonjohn.unchainedapi.UnchainedAPI;
 import com.jasonjohn.unchainedapi.UnchainedAPIException;
 import com.jasonjohn.unchainedapi.UnchainedRestaurant;
@@ -46,6 +49,7 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
     public static final String GOOGLE_PLACES_KEY = "AIzaSyBNxtP1FnsCQoBz6pOozC-WVRo_2ZoCmzQ";
@@ -250,6 +254,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         } else if(id == R.id.action_location) {
             toggleConfigDropdown(0);
             return true;
+        } else if(id == R.id.action_favs) {
+            loadFavoriteUCRs();
         }
 
         return super.onOptionsItemSelected(item);
@@ -309,13 +315,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         private int errorCode = 0;
         @Override
         protected Void doInBackground(String... params) {
-            Log.d("UCA", "Checkpoint 1");
             String location = params[1];
             if(!location.matches("-?[0-9.]*,-?[0-9.]*")) {
                 try {
-                    Log.d("UCA", "Checkpoint 1.5");
                     location = Util.getLatLngFromMapsQuery(location);
-                    Log.d("UCA", "Checkpoint 2");
                 } catch (UnchainedAPIException e) {
                     setErrorCode(ERROR_GEO);
                 }
@@ -546,5 +549,39 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         });
         AlertDialog alert = builder.create();
         alert.show();
+    }
+
+
+    private void loadFavoriteUCRs() {
+        swipeRefreshLayout.setRefreshing(true);
+        try {
+            nonChains.clear();
+            listAdapter.clear();
+        } catch (NullPointerException e) {
+            //eat exception
+        }
+        toggleRefreshIndicators(0);
+        setErrorUi(null);
+
+       SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        Map<String, ?> allEntires = prefs.getAll();
+        boolean first = true;
+        for(Map.Entry<String,?> entry : allEntires.entrySet()){
+            if(first) {
+                first = !first;
+                continue;
+            }
+            //entry.getValue().toString();
+            Gson gson = new Gson();
+            String json = entry.getValue().toString();
+            UnchainedRestaurant ucr = gson.fromJson(json, UnchainedRestaurant.class);
+
+            nonChains = new ArrayList<UnchainedRestaurant>();
+            nonChains.add(ucr);
+        }
+        swipeRefreshLayout.setRefreshing(false);
+        listAdapter = new UnchainedAdapter(getApplicationContext(), R.layout.list_item, nonChains);
+        listView.setAdapter(listAdapter);
+
     }
 }
