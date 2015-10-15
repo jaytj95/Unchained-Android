@@ -1,6 +1,7 @@
 package com.jasonjohn.unchainedandroid;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -22,7 +24,9 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.jasonjohn.unchainedapi.Unchained4SQRestaurant;
 import com.jasonjohn.unchainedapi.UnchainedRestaurant;
+import com.jasonjohn.unchainedapi.UnchainedYelpRestaurant;
 import com.jasonjohn.unchainedapi.Util;
 import com.squareup.picasso.Picasso;
 
@@ -31,7 +35,7 @@ public class VenueDetailActivity extends AppCompatActivity implements OnMapReady
     private ImageView toolbarImg;
     private UnchainedRestaurant ucr;
     private NestedScrollView nestedScrollView;
-    private TextView phoneNumber, navAddress;
+    private TextView phoneNumber, navAddress, contentWebsite;
     private LinearLayout contentLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +61,6 @@ public class VenueDetailActivity extends AppCompatActivity implements OnMapReady
                         // Allow ScrollView to intercept touch events.
                         nestedScrollView.requestDisallowInterceptTouchEvent(false);
                         return true;
-
                     case MotionEvent.ACTION_MOVE:
                         nestedScrollView.requestDisallowInterceptTouchEvent(true);
                         return false;
@@ -82,7 +85,7 @@ public class VenueDetailActivity extends AppCompatActivity implements OnMapReady
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Saved this Unchained Restaurant!", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "Unchained Restaurant saving coming soon!", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
@@ -91,26 +94,35 @@ public class VenueDetailActivity extends AppCompatActivity implements OnMapReady
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+
         phoneNumber = (TextView) findViewById(R.id.content_phone);
         navAddress = (TextView) findViewById(R.id.navigate_addr);
+        contentWebsite = (TextView) findViewById(R.id.content_wesbite);
+
+        contentLayout = (LinearLayout) findViewById(R.id.content_linlayout);
 
         phoneNumber.setText(ucr.getTelephone());
         navAddress.setText(ucr.getAddress());
 
-        contentLayout = (LinearLayout) findViewById(R.id.content_linlayout);
+        removeMissingDataViews();
+
         contentLayout.setClickable(true);
         View.OnClickListener contentClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int pos = contentLayout.indexOfChild(v);
-                Snackbar.make(v, "Saved this Unchained Restaurant! + " + pos, Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
                 switch(pos) {
                     case 0:
-                        //phone
+                        Intent phoneIntent = new Intent(Intent.ACTION_DIAL);
+                        phoneIntent.setData(Uri.parse("tel:" + ucr.getTelephone()));
+                        startActivity(phoneIntent);
                         break;
                     case 1:
-                        //nav
+                        if (ucr.getAddress() != null) {
+                            Uri gmmIntentUri = Uri.parse("http://maps.google.com/maps?daddr=" + Uri.encode(ucr.getAddress()));
+                            Intent mapsIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                            startActivity(mapsIntent);
+                        }
                         break;
                     case 2:
                         Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
@@ -120,10 +132,32 @@ public class VenueDetailActivity extends AppCompatActivity implements OnMapReady
                         sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
                         startActivity(Intent.createChooser(sharingIntent, "Share Using"));
                         break;
+                    case 3:
+                        if(ucr.getWebsite() != null) {
+                            String url = ucr.getWebsite();
+                            Intent i3 = new Intent(Intent.ACTION_VIEW);
+                            i3.setData(Uri.parse(url));
+                            startActivity(i3);
+                        } else {
+                            Toast.makeText(getApplicationContext(), "No Website Data", Toast.LENGTH_SHORT).show();
+                        }
+                        break;
                 }
             }
         };
-        contentLayout.setOnClickListener(contentClickListener);
+        contentLayout.getChildAt(0).setOnClickListener(contentClickListener);
+        contentLayout.getChildAt(1).setOnClickListener(contentClickListener);
+        contentLayout.getChildAt(2).setOnClickListener(contentClickListener);
+        contentLayout.getChildAt(3).setOnClickListener(contentClickListener);
+    }
+
+    private void removeMissingDataViews() {
+        if(ucr.getTelephone() == null) {
+            contentLayout.getChildAt(0).setVisibility(View.GONE);
+        }
+        if(ucr.getAddress() == null) {
+            navAddress.setText("via GPS Coordinates");
+        }
     }
 
     @Override
