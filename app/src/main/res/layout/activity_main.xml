@@ -87,19 +87,6 @@
     </RelativeLayout>
 
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="ERROR"
-        android:fontFamily="sans-serif-thin"
-        android:textColor="#FFF"
-        android:id="@+id/error_text"
-        android:textSize="25sp"
-        android:visibility="invisible"
-        android:layout_above="@+id/adView"
-        android:layout_centerHorizontal="true" />
-
     <com.google.android.gms.ads.AdView
         android:id="@+id/adView"
         android:layout_width="wrap_content"

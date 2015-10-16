@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -69,12 +70,14 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private EditText configTextbox;
     private Button configLocationSubmit, configQuerySubmit;
     private InputMethodManager inputMethodManager;
-    private TextView configLocationTv, configQueryTv, errorTv;
+    private TextView configLocationTv, configQueryTv;
     private ImageView refreshImg1, refreshImg2;
 
     private boolean firstLocSetDone = false, firstQuerySetDone = false;
     private String unchainedLocation, unchainedRestaurantQuery;
     private UnchainedAPI unchainedAPI;
+
+    private boolean onFavoritesList = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,7 +96,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
 
-        errorTv = (TextView) findViewById(R.id.error_text);
         //config layout init
         configDropdown = (RelativeLayout) findViewById(R.id.config_drop);
 
@@ -234,6 +236,14 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if(onFavoritesList) {
+            loadFavoriteUCRs();
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -255,6 +265,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             toggleConfigDropdown(0);
             return true;
         } else if(id == R.id.action_favs) {
+            onFavoritesList = !onFavoritesList;
             loadFavoriteUCRs();
         }
 
@@ -306,7 +317,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }
         new UnchainedAsync().execute(unchainedRestaurantQuery, unchainedLocation);
         toggleRefreshIndicators(0);
-        setErrorUi(null);
     }
 
     private class UnchainedAsync extends AsyncTask<String, Void, Void> {
@@ -465,33 +475,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     private void setErrorUi(String msg) {
-        if(msg == null) {
-            YoYo.with(Techniques.SlideOutDown).duration(350).withListener(new Animator.AnimatorListener() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-
-                }
-
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    errorTv.setVisibility(View.INVISIBLE);
-                }
-
-                @Override
-                public void onAnimationCancel(Animator animation) {
-
-                }
-
-                @Override
-                public void onAnimationRepeat(Animator animation) {
-
-                }
-            }).playOn(errorTv);
-        } else {
-            errorTv.setVisibility(View.VISIBLE);
-            errorTv.setText(msg);
-            YoYo.with(Techniques.SlideInUp).duration(350).playOn(errorTv);
-        }
+        Snackbar snackbar = Snackbar.make(swipeRefreshLayout, msg, Snackbar.LENGTH_LONG)
+                .setAction("Action", null);
+        snackbar.getView().setBackgroundColor(getResources().getColor(R.color.primary));
+        snackbar.show();
     }
 
     /* launchVenueActionContextMenu(Context, UnchainedRestaurant)
@@ -561,7 +548,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         Map<String, ?> allEntires = prefs.getAll();
 
         if(allEntires.isEmpty()) {
-            setErrorUi("No Favorites");
+            setErrorUi("You haven't chosen any favorite Unchained Restaurants");
         }
         for(Map.Entry<String,?> entry : allEntires.entrySet()) {
             Gson gson = new Gson();

@@ -89,8 +89,18 @@ public class VenueDetailActivity extends AppCompatActivity implements OnMapReady
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                storeUCR(ucr);
-                Snackbar snackbar = Snackbar.make(view, "Saved Unchained Restaurant!", Snackbar.LENGTH_LONG)
+                String snackbarMsg = null;
+                SharedPreferences sharedPrefs = getSharedPreferences("savedunchained", Context.MODE_PRIVATE);
+                SharedPreferences.Editor prefsEditor = sharedPrefs.edit();
+                if(sharedPrefs.contains(ucr.getName())) {
+                    prefsEditor.remove(ucr.getName());
+                    prefsEditor.commit();
+                    snackbarMsg = "Removed Unchained Restaurant from Favorites!";
+                } else {
+                    storeUCR(ucr);
+                    snackbarMsg = "Added Unchained Restaurant to Favorites!";
+                }
+                Snackbar snackbar = Snackbar.make(view, snackbarMsg, Snackbar.LENGTH_LONG)
                         .setAction("Action", null);
                 snackbar.getView().setBackgroundColor(getResources().getColor(R.color.primary_dark));
                 snackbar.show();
