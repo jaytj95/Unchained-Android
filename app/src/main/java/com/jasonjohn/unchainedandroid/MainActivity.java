@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
@@ -322,15 +323,21 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private class UnchainedAsync extends AsyncTask<String, Void, Void> {
         final private int ERROR_GEO = 1;
         final private int ERROR_API = 2;
+        final private int ERROR_DATA = 3;
         private int errorCode = 0;
         @Override
         protected Void doInBackground(String... params) {
             String location = params[1];
-            if(!location.matches("-?[0-9.]*,-?[0-9.]*")) {
-                try {
-                    location = Util.getLatLngFromMapsQuery(location);
-                } catch (UnchainedAPIException e) {
-                    setErrorCode(ERROR_GEO);
+            if(!checkDataStatus()) {
+                setErrorCode(ERROR_DATA);
+            }
+            if(getErrorCode() == 0) {
+                if (!location.matches("-?[0-9.]*,-?[0-9.]*")) {
+                    try {
+                        location = Util.getLatLngFromMapsQuery(location);
+                    } catch (UnchainedAPIException e) {
+                        setErrorCode(ERROR_GEO);
+                    }
                 }
             }
 
@@ -366,6 +373,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     case ERROR_API:
                         msg = "We can't find any restaurants :(";
                         setErrorUi(msg);
+                        break;
+                    case ERROR_DATA:
+                        msg = "No Data Connection...";
+                        setErrorUi(msg);
 
                 }
             }
@@ -377,6 +388,20 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         private int getErrorCode() {
             return errorCode;
+        }
+    }
+
+    private boolean checkDataStatus() {
+        final ConnectivityManager connMgr = (ConnectivityManager)
+                this.getSystemService(Context.CONNECTIVITY_SERVICE);
+        final android.net.NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        final android.net.NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        if (wifi.isConnected()) {
+            return true;
+        } else if (mobile.isConnected()) {
+            return true;
+        } else {
+            return false;
         }
     }
 
