@@ -9,6 +9,7 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -79,7 +80,14 @@ public class VenueDetailActivity extends AppCompatActivity implements OnMapReady
         ucr = Util.buildUCR(hashMap);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_arrow_back_white_24dp));
         setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
         CollapsingToolbarLayout toolBarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
         toolBarLayout.setTitle(ucr.getName());
         toolbarImg = (ImageView) findViewById(R.id.toolbar_img);
@@ -181,7 +189,7 @@ public class VenueDetailActivity extends AppCompatActivity implements OnMapReady
     public void onMapReady(GoogleMap map) {
         LatLng ucrMarker = new LatLng(ucr.getLatlng()[0], ucr.getLatlng()[1]);
         map.addMarker(new MarkerOptions().position(ucrMarker).title(ucr.getName()));
-        CameraPosition cameraPosition = new CameraPosition.Builder().target(ucrMarker).zoom(13.0f).build();
+        CameraPosition cameraPosition = new CameraPosition.Builder().target(ucrMarker).zoom(13.5f).build();
         CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPosition);
         map.moveCamera(cameraUpdate);
     }

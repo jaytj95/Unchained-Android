@@ -541,7 +541,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
 
     private void loadFavoriteUCRs() {
-        swipeRefreshLayout.setRefreshing(true);
+//        swipeRefreshLayout.setRefreshing(true);
         nonChains = new ArrayList<UnchainedRestaurant>();
 
         SharedPreferences prefs = getSharedPreferences("savedunchained", Context.MODE_PRIVATE);
@@ -556,7 +556,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             UnchainedRestaurant ucr = gson.fromJson(json, UnchainedRestaurant.class);
             nonChains.add(ucr);
         }
-        swipeRefreshLayout.setRefreshing(false);
+//        swipeRefreshLayout.setRefreshing(false);
         listAdapter = new UnchainedAdapter(getApplicationContext(), R.layout.list_item, nonChains);
         listView.setAdapter(listAdapter);
     }
