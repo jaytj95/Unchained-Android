@@ -311,6 +311,17 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public void onRefresh() {
+        GpsLocationTracker mGpsLocationTracker = new GpsLocationTracker(MainActivity.this);
+        if (mGpsLocationTracker.canGetLocation())
+        {
+
+            Log.i("GPS", String.format("latitude: %s", "WE HERE"));
+            double latitude = mGpsLocationTracker.getLatitude();
+            double longitude = mGpsLocationTracker.getLongitude();
+            Log.i("GPS", String.format("latitude: %s", latitude));
+            Log.i("GPS", String.format("longitude: %s", longitude));
+
+        }
         try {
             listAdapter.clear();
         } catch (NullPointerException e) {
