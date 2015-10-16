@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         listView = (ListView) findViewById(R.id.listview);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeLayout);
-        swipeRefreshLayout.setColorSchemeResources(R.color.unchained_red, R.color.unchained_blue);
+        swipeRefreshLayout.setColorSchemeResources(R.color.primary, R.color.accent);
         swipeRefreshLayout.setOnRefreshListener(this);
 
         AdView mAdView = (AdView) findViewById(R.id.adView);
@@ -346,6 +346,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 listAdapter = new UnchainedAdapter(getApplicationContext(), R.layout.list_item, nonChains);
                 listView.setAdapter(listAdapter);
             } else {
+                Log.d("UC", "Error code: " + getErrorCode());
                 String msg;
                 switch(getErrorCode()) {
                     case ERROR_GEO: //GEO ERROR
@@ -554,34 +555,22 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     private void loadFavoriteUCRs() {
         swipeRefreshLayout.setRefreshing(true);
-        try {
-            nonChains.clear();
-            listAdapter.clear();
-        } catch (NullPointerException e) {
-            //eat exception
-        }
-        toggleRefreshIndicators(0);
-        setErrorUi(null);
+        nonChains = new ArrayList<UnchainedRestaurant>();
 
-       SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences prefs = getSharedPreferences("savedunchained", Context.MODE_PRIVATE);
         Map<String, ?> allEntires = prefs.getAll();
-        boolean first = true;
-        for(Map.Entry<String,?> entry : allEntires.entrySet()){
-            if(first) {
-                first = !first;
-                continue;
-            }
-            //entry.getValue().toString();
+
+        if(allEntires.isEmpty()) {
+            setErrorUi("No Favorites");
+        }
+        for(Map.Entry<String,?> entry : allEntires.entrySet()) {
             Gson gson = new Gson();
             String json = entry.getValue().toString();
             UnchainedRestaurant ucr = gson.fromJson(json, UnchainedRestaurant.class);
-
-            nonChains = new ArrayList<UnchainedRestaurant>();
             nonChains.add(ucr);
         }
         swipeRefreshLayout.setRefreshing(false);
         listAdapter = new UnchainedAdapter(getApplicationContext(), R.layout.list_item, nonChains);
         listView.setAdapter(listAdapter);
-
     }
 }

@@ -9,7 +9,7 @@
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:minHeight="?attr/actionBarSize"
-        android:background="@color/unchained_red"
+        android:background="@color/primary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
     </android.support.v7.widget.Toolbar>
@@ -39,7 +39,7 @@
         android:minHeight="?attr/actionBarSize"
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:background="@color/unchained_blue"
+        android:background="@color/accent2"
         android:layout_alignTop="@+id/swipeLayout"
         android:layout_alignParentLeft="true">
 
@@ -106,15 +106,15 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
+        android:visibility="gone"
         ads:adSize="BANNER"
-        android:visibility="visible"
         ads:adUnitId="@string/ad_unit">
     </com.google.android.gms.ads.AdView>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/unchained_red"
+        android:background="@color/primary"
         android:id="@+id/refresh_notif"
         android:visibility="gone"
         android:layout_alignParentBottom="true"

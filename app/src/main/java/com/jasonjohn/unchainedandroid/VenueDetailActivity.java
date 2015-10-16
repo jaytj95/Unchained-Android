@@ -1,5 +1,6 @@
 package com.jasonjohn.unchainedandroid;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -89,8 +90,10 @@ public class VenueDetailActivity extends AppCompatActivity implements OnMapReady
             @Override
             public void onClick(View view) {
                 storeUCR(ucr);
-                Snackbar.make(view, "Saved Unchained Restaurant!", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Snackbar snackbar = Snackbar.make(view, "Saved Unchained Restaurant!", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null);
+                snackbar.getView().setBackgroundColor(getResources().getColor(R.color.primary_dark));
+                snackbar.show();
             }
         });
 
@@ -174,7 +177,7 @@ public class VenueDetailActivity extends AppCompatActivity implements OnMapReady
     }
 
     private void storeUCR(UnchainedRestaurant ucr) {
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences sharedPrefs = getSharedPreferences("savedunchained", Context.MODE_PRIVATE);
         SharedPreferences.Editor prefsEditor = sharedPrefs.edit();
         Gson gson = new Gson();
         String json = gson.toJson(ucr);

@@ -13,6 +13,10 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
         android:orientation="vertical">
 
         <android.support.v7.widget.CardView
@@ -43,13 +47,15 @@
 
             </RelativeLayout>
         </android.support.v7.widget.CardView>
-
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="15dp"/>
         <android.support.v7.widget.CardView
             xmlns:card_view="http://schemas.android.com/apk/res-auto"
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/card_view"
             android:layout_width="match_parent"
-            card_view:cardBackgroundColor="#666"
+            card_view:cardBackgroundColor="@color/accent2"
             android:layout_height="wrap_content"
             card_view:cardCornerRadius="4dp"
             android:layout_margin="5dp">
@@ -65,7 +71,7 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:background="#666">
+                    android:background="@color/accent2">
 
                     <ImageView
                         android:layout_width="wrap_content"
@@ -107,7 +113,7 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:background="#666">
+                    android:background="@color/accent2">
 
                     <ImageView
                         android:layout_width="wrap_content"
@@ -152,7 +158,7 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:background="#666">
+                    android:background="@color/accent2">
 
                     <ImageView
                         android:layout_width="wrap_content"
@@ -194,7 +200,7 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:background="#666">
+                    android:background="@color/accent2">
 
                     <ImageView
                         android:layout_width="wrap_content"

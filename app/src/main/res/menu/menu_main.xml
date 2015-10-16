@@ -13,7 +13,7 @@
         android:title="Search"/>
     <item
         android:id="@+id/action_favs"
-        android:icon="@drawable/abc_btn_rating_star_on_mtrl_alpha"
+        android:icon="@drawable/ic_star_white_24dp"
         app:showAsAction="always"
-        android:title="Search"/>
+        android:title="View Favorites"/>
 </menu>
