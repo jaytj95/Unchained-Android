@@ -239,6 +239,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     @Override
     protected void onResume() {
         super.onResume();
+        Log.d("TAG", "Resume");
         if(onFavoritesList) {
             loadFavoriteUCRs();
         }
@@ -266,7 +267,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             toggleConfigDropdown(0);
             return true;
         } else if(id == R.id.action_favs) {
-            onFavoritesList = !onFavoritesList;
+            onFavoritesList = true;
+            Log.d("TAG", "Just set onfav to:" + onFavoritesList);
             loadFavoriteUCRs();
         }
 
@@ -311,17 +313,18 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public void onRefresh() {
-        GpsLocationTracker mGpsLocationTracker = new GpsLocationTracker(MainActivity.this);
-        if (mGpsLocationTracker.canGetLocation())
-        {
-
-            Log.i("GPS", String.format("latitude: %s", "WE HERE"));
-            double latitude = mGpsLocationTracker.getLatitude();
-            double longitude = mGpsLocationTracker.getLongitude();
-            Log.i("GPS", String.format("latitude: %s", latitude));
-            Log.i("GPS", String.format("longitude: %s", longitude));
-
-        }
+        onFavoritesList = false;
+//        GpsLocationTracker mGpsLocationTracker = new GpsLocationTracker(MainActivity.this);
+//        if (mGpsLocationTracker.canGetLocation())
+//        {
+//
+//            Log.i("GPS", String.format("latitude: %s", "WE HERE"));
+//            double latitude = mGpsLocationTracker.getLatitude();
+//            double longitude = mGpsLocationTracker.getLongitude();
+//            Log.i("GPS", String.format("latitude: %s", latitude));
+//            Log.i("GPS", String.format("longitude: %s", longitude));
+//
+//        }
         try {
             listAdapter.clear();
         } catch (NullPointerException e) {
