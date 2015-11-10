@@ -91,7 +91,9 @@ public class VenueDetailActivity extends AppCompatActivity implements OnMapReady
         CollapsingToolbarLayout toolBarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
         toolBarLayout.setTitle(ucr.getName());
         toolbarImg = (ImageView) findViewById(R.id.toolbar_img);
-        Picasso.with(getApplicationContext()).load(ucr.getPicUrls().get(0)).into(toolbarImg);
+
+        if(!ucr.getPicUrls().isEmpty())
+            Picasso.with(getApplicationContext()).load(ucr.getPicUrls().get(0)).into(toolbarImg);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {

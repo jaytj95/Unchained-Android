@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -40,6 +43,9 @@ import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.gson.Gson;
 import com.jasonjohn.unchainedapi.UnchainedAPI;
 import com.jasonjohn.unchainedapi.UnchainedAPIException;
@@ -78,12 +84,18 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private String unchainedLocation, unchainedRestaurantQuery;
     private UnchainedAPI unchainedAPI;
 
+    LocationManager mLocationManager;
+    private Location mLastLocation;
+
     private boolean onFavoritesList = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         this.setSupportActionBar(toolbar);
@@ -93,9 +105,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         swipeRefreshLayout.setColorSchemeResources(R.color.primary, R.color.accent);
         swipeRefreshLayout.setOnRefreshListener(this);
 
-        AdView mAdView = (AdView) findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
+//        AdView mAdView = (AdView) findViewById(R.id.adView);
+//        AdRequest adRequest = new AdRequest.Builder().build();
+//        mAdView.loadAd(adRequest);
 
         //config layout init
         configDropdown = (RelativeLayout) findViewById(R.id.config_drop);
@@ -162,10 +174,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         toolbar.bringToFront();
 
-//        unchainedRestaurantQuery = "Enter Food Query Here";
-//        unchainedLocation = "Enter Location Here";
-        unchainedRestaurantQuery = "Sushi";
-        unchainedLocation = "Mall of GA";
+        unchainedRestaurantQuery = "Enter Food Query Here";
+        unchainedLocation = "Enter Location Here";
+//        unchainedRestaurantQuery = "Sushi";
+//        unchainedLocation = "Mall of GA";
 
         listView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -234,6 +246,32 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         unchainedAPI = new UnchainedAPI(YELP_KEY, YELP_SECRET, YELP_TOKEN, YELP_TOKEN_SECRET,
                 FOURSQUARE_ID, FOURSQUARE_SECRET, GOOGLE_PLACES_KEY);
 
+        LocationListener locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                mLastLocation = location;
+                Log.d("LOC", "Got loc" + mLastLocation.getLatitude() + "," + mLastLocation.getLongitude());
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+        };
+
+        mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+
     }
 
     @Override
@@ -259,7 +297,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_search) {
             toggleConfigDropdown(1);
             return true;
@@ -268,7 +305,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             return true;
         } else if(id == R.id.action_favs) {
             onFavoritesList = true;
-            Log.d("TAG", "Just set onfav to:" + onFavoritesList);
             loadFavoriteUCRs();
         }
 
@@ -303,6 +339,26 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             configLocationSubmit.setVisibility(View.VISIBLE);
             configQuerySubmit.setVisibility(View.GONE);
             configTextbox.setHint("Enter your location (eg. Atlanta, GA)");
+            if(isLocationServicesOn()) {
+                if (mLastLocation == null) {
+                    Snackbar snackbar = Snackbar.make(configTextbox, "Trying to get current location", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null);
+                    snackbar.show();
+                } else if (!unchainedLocation.equals("Current Location")) {
+                    Snackbar snackbar = Snackbar.make(configTextbox, "Click here for current location", Snackbar.LENGTH_INDEFINITE)
+                            .setAction("SET", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    unchainedLocation = "Current Location";
+                                    firstLocSetDone = true;
+                                    configLocationSubmit.performClick();
+
+                                }
+                            });
+                    snackbar.show();
+
+                }
+            }
         } else {
             configLocationSubmit.setVisibility(View.GONE);
             configQuerySubmit.setVisibility(View.VISIBLE);
@@ -314,17 +370,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     @Override
     public void onRefresh() {
         onFavoritesList = false;
-//        GpsLocationTracker mGpsLocationTracker = new GpsLocationTracker(MainActivity.this);
-//        if (mGpsLocationTracker.canGetLocation())
-//        {
-//
-//            Log.i("GPS", String.format("latitude: %s", "WE HERE"));
-//            double latitude = mGpsLocationTracker.getLatitude();
-//            double longitude = mGpsLocationTracker.getLongitude();
-//            Log.i("GPS", String.format("latitude: %s", latitude));
-//            Log.i("GPS", String.format("longitude: %s", longitude));
-//
-//        }
         try {
             listAdapter.clear();
         } catch (NullPointerException e) {
@@ -333,7 +378,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         new UnchainedAsync().execute(unchainedRestaurantQuery, unchainedLocation);
         toggleRefreshIndicators(0);
     }
-
     private class UnchainedAsync extends AsyncTask<String, Void, Void> {
         final private int ERROR_GEO = 1;
         final private int ERROR_API = 2;
@@ -344,6 +388,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             String location = params[1];
             if(!checkDataStatus()) {
                 setErrorCode(ERROR_DATA);
+            }
+            if(mLastLocation != null && ((String)params[1]).equals("Current Location")) {
+                location = mLastLocation.getLatitude() + "," + mLastLocation.getLongitude();
             }
             if(getErrorCode() == 0) {
                 if (!location.matches("-?[0-9.]*,-?[0-9.]*")) {
@@ -562,7 +609,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                         break;
                     //Go to Website
                     case 3:
-                        if(ucr.getWebsite() != null) {
+                        if (ucr.getWebsite() != null) {
                             String url = ucr.getWebsite();
                             Intent i3 = new Intent(Intent.ACTION_VIEW);
                             i3.setData(Uri.parse(url));
@@ -599,4 +646,14 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         listAdapter = new UnchainedAdapter(getApplicationContext(), R.layout.list_item, nonChains);
         listView.setAdapter(listAdapter);
     }
+
+
+
+    private boolean isLocationServicesOn() {
+        LocationManager lm = (LocationManager)this.getSystemService(Context.LOCATION_SERVICE);
+        if(lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER) || lm.isProviderEnabled(LocationManager.GPS_PROVIDER))
+            return true;
+        else return false;
+    }
+
 }

@@ -93,7 +93,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
-        android:visibility="visible"
+        android:visibility="gone"
         ads:adSize="BANNER"
         ads:adUnitId="@string/ad_unit">
     </com.google.android.gms.ads.AdView>
