@@ -2,17 +2,57 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="200dp">
 
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:scaleType="centerCrop"
+        android:id="@+id/venueImg"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Large Text"
-        android:fontFamily="sans-serif-thin"
-        android:id="@+id/venueName"
-        android:textColor="#000"
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="@drawable/list_gradient_shade"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentLeft="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Large Text"
+            android:fontFamily="sans-serif-thin"
+            android:id="@+id/venueName"
+            android:layout_marginLeft="10dp"
+            android:textStyle="bold"
+            android:textColor="#fff"
+            android:layout_above="@+id/venueAddress"
+            android:layout_alignParentLeft="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-thin"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Address"
+            android:id="@+id/venueAddress"
+            android:layout_marginLeft="10dp"
+            android:layout_above="@+id/ratingBar"
+            android:layout_alignParentLeft="true" />
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="25dp"
+            android:progressDrawable="@drawable/custom_progbar"
+            android:progress="100"
+            android:id="@+id/ratingBar"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:indeterminate="false" />
+
+    </RelativeLayout>
+
+
 </RelativeLayout>

@@ -3,7 +3,17 @@
     xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
     <item
         android:id="@+id/action_search"
-        android:icon="@android:drawable/ic_menu_search"
+        android:icon="@drawable/ic_action_action_search"
         app:showAsAction="always"
         android:title="Search"/>
+    <item
+        android:id="@+id/action_location"
+        android:icon="@drawable/ic_action_device_gps_fixed"
+        app:showAsAction="always"
+        android:title="Search"/>
+    <item
+        android:id="@+id/action_favs"
+        android:icon="@drawable/ic_star_white_24dp"
+        app:showAsAction="always"
+        android:title="View Favorites"/>
 </menu>

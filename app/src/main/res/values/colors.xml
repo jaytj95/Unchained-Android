@@ -1,4 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="unchained_red">#bf1111</color>
+    <color name="unchained_blue">#184774</color>
+    <color name="unchained_purple">#ff8a14a0</color>
+
+    <color name="unchained_red_trans">#00bf1111</color>
+    <color name="unchained_blue_trans">#00184774</color>
+    <color name="unchained_purple_trans">#008a14a0</color>
+
+    <color name="primary">#F44336</color>
+    <color name="primary_dark">#D32F2F</color>
+    <color name="primary_light">#FFCDD2</color>
+    <color name="accent">#4389FE</color>
+    <color name="accent2">#363F45</color>
+    <color name="primary_text">#212121</color>
+    <color name="secondary_text">#727272</color>
+    <color name="icons">#FFFFFF</color>
+    <color name="divider">#B6B6B6</color>
+
 </resources>

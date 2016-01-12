@@ -3,7 +3,10 @@
     package="com.jasonjohn.unchainedandroid" >
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="com.arshad.map.permission.MAPS_RECEIVE" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -19,6 +22,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".VenueDetailActivity"
+            android:label="@string/title_activity_venue_detail"
+            android:theme="@style/AppTheme" >
+        </activity>
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="@string/goog_sha1"/>
     </application>
 
 </manifest>
