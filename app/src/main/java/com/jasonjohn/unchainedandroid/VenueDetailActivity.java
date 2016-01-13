@@ -33,6 +33,7 @@ import com.jasonjohn.unchainedapi.Unchained4SQRestaurant;
 import com.jasonjohn.unchainedapi.UnchainedRestaurant;
 import com.jasonjohn.unchainedapi.UnchainedYelpRestaurant;
 import com.jasonjohn.unchainedapi.Util;
+import com.norbsoft.typefacehelper.TypefaceHelper;
 import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;

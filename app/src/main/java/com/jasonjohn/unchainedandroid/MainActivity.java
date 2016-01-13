@@ -52,6 +52,7 @@ import com.jasonjohn.unchainedapi.UnchainedAPIException;
 import com.jasonjohn.unchainedapi.UnchainedRestaurant;
 import com.jasonjohn.unchainedapi.Util;
 import com.nineoldandroids.animation.Animator;
+import com.norbsoft.typefacehelper.TypefaceHelper;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;

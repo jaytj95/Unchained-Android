@@ -7,8 +7,9 @@ android {
         applicationId "com.jasonjohn.unchainedandroid"
         minSdkVersion 14
         targetSdkVersion 22
-        versionCode 2
-        versionName "1.1"
+        versionCode 5
+        versionName "1.3"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -25,7 +26,7 @@ android {
 }
 
 dependencies {
-    compile files('libs/Unchained_1.6.0.jar')
+    compile files('libs/UnchainedLib.jar')
     compile 'com.android.support:appcompat-v7:22.2.1'
     compile 'com.android.support:appcompat-v7:22.2.1'
     compile 'com.android.support:support-v4:22.2.1'
@@ -39,4 +40,8 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:22.0.+'
     compile 'com.google.android.gms:play-services:8.1.0'
     compile 'com.google.code.gson:gson:1.7.2'
+    compile 'com.sothree.slidinguppanel:library:3.2.1'
+    compile 'com.norbsoft.typefacehelper:library:0.9.0'
+    compile 'com.joanzapata.iconify:android-iconify-fontawesome:2.1.1' // (v4.5)
+    compile 'com.github.medyo:fancybuttons:1.5@aar'
 }
